@@ -227,11 +227,11 @@
                 <!-- <p class="product-subtitle">{{ currentSubtitle }}</p> -->
                 <div class="product-price">{{ currentPrice }}</div>
                 <!-- <div class="product-desc" v-html="currentDesc"></div> -->
-                <button class="buy-btn" @click="toggleBuyLinks">{{ showBuyLinks ? '收起购买链接' : '立即购买' }}</button>
+                <button class="buy-btn" @click="toggleBuyLinks">{{ showBuyLinks ? 'Hide Links' : 'Buy Now' }}</button>
                 
                 <!-- 购买链接区域 -->
                 <div class="buy-links-container" :style="{ display: showBuyLinks ? 'block' : 'none' }">
-                    <div class="buy-links-title">选择购买平台：</div>
+                    <div class="buy-links-title">Select Purchase Platform:</div>
                     <div class="buy-links">
                         <div v-for="(linkItem, index) in purchaseLinks(currentProduct ? currentProduct.pid : '')" :key="index" class="buy-link-item">
                             <img :src="linkItem.icon" class="buy-link-icon" />
@@ -243,7 +243,7 @@
 
             <!-- 新增图片展示模块 -->
             <section class="all-images-section">
-                <h2>更多商品图片</h2>
+                <h2>Product Detail</h2>
                 <div class="all-images-container" id="allImagesContainer">
                     <!-- 所有图片将通过JS动态生成 -->
                 </div>
