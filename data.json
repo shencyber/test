@@ -4,9 +4,27 @@
     "category": "Coats and Jackets",
     "plist": [
       {
-        "cover": "cover-114.png",
+        "cover": "https://si.geilicdn.com/pcitem901979398095-2f3200000199d1cd6ca00a8133cc-unadjust_1900_2059.png.webp?w=400&h=400",
         "price": 80,
-        "pid": "7571117522"
+        "pid": "7571117522",
+        "title":"test",
+        "images":[
+            "https://si.geilicdn.com/pcitem901979398095-2f3200000199d1cd6ca00a8133cc-unadjust_1900_2059.png",
+            "https://si.geilicdn.com/pcitem901979398095-4c2f00000199d1ccf71a0a2103bd_1080_1312.jpg",
+            "https://si.geilicdn.com/pcitem901979398095-246000000199d1cced070a239646_1080_1474.jpg",
+            "https://si.geilicdn.com/pcitem901979398095-2f0f00000199d1cceb030a8133cc_1080_1718.jpg",
+            "https://si.geilicdn.com/pcitem901979398095-7beb00000199d1ccefb50a210139_1080_1458.jpg",
+            "https://si.geilicdn.com/pcitem901979398095-7bb400000199d1ccf1e70a231316_1080_1440.jpg",
+            "https://si.geilicdn.com/pcitem901979398095-779000000199d1ccf4100a811411_1080_1440.jpg",
+            "https://si.geilicdn.com/pcitem901979398095-213f00000199d1ccf9190a20e7c7_1200_1200.jpg",
+            "https://si.geilicdn.com/pcitem901979398095-271200000199d1ccfbaa0a23037f_1200_1200.jpg",
+            "https://si.geilicdn.com/pcitem901979398095-2b9d00000199d1ccff460a20e284_1200_1200.jpg",
+            "https://si.geilicdn.com/pcitem901979398095-32e600000199d1ccd20f0a23111a_5712_4284.jpg",
+            "https://si.geilicdn.com/pcitem901979398095-292400000199d1ccdafa0a23041a_5712_4284.jpg",
+            "https://si.geilicdn.com/pcitem901979398095-278f00000199d1cce3310a23047e_5712_4284.jpg",
+            "https://si.geilicdn.com/pcitem901979398095-270200000199d1ccca980a23037f_5712_4284.jpg",
+            "https://si.geilicdn.com/pcitem901979398095-213200000199d1ccc9830a20e7c7-unadjust_1124_187.png"
+        ]
       },
       {
         "cover": "cover-115.png",

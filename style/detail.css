@@ -10,7 +10,6 @@
             background-color: #f8f9fa;
             min-height: 100vh;
             margin: 0;
-            padding: 40px 0;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -275,26 +274,55 @@
             font-weight: 500;
         }
 
+        /* 容器样式：统一垂直单列布局，确保从上到下排列 */
         .all-images-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
+            display: grid;
+            grid-template-columns: 1fr; /* 统一单列，垂直堆叠 */
+            gap: 15px; /* 图片间距，适中以适应所有设备 */
+            padding: 10px 0;
+            max-width: 100%;
+            overflow: hidden; /* 防止溢出 */
         }
 
+        /* 图片通用样式 */
         .all-images-container img {
-            width: 100%;
-            max-width: 500px;
-            height: 350px;
-            object-fit: cover;
-            border-radius: 12px;
+            width: 100%; /* 填充容器宽度 */
+            max-width: 100%; /* 防止超出父容器 */
+            height: auto; /* 关键：自动高度，保持原比例 */
+            object-fit: contain; /* 完整显示图片，允许空白；备选: scale-down (缩小到fit) */
             cursor: pointer;
-            transition: transform 0.3s ease;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease; /* 平滑交互 */
+            /*box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);*/
+            /*border-radius: 8px; /* 轻微圆角，提升视觉（可选） */*/
+            display: block; /* 移除img默认间隙 */
         }
 
-        .all-images-container img:hover {
-            transform: scale(1.02);
+       
+
+        /* 移动端优化：增大间距和padding，便于触摸 */
+        @media (max-width: 768px) {
+            .all-images-container {
+                gap: 20px; /* 更大间距，适应垂直滚动 */
+                padding: 15px;
+            }
+            
+            .all-images-container img {
+                border-radius: 4px; /* 移动端圆角小点 */
+            }
+        }
+
+        /* PC端优化：保持单列，但可调整最大宽度和间距 */
+        @media (min-width: 769px) {
+            .all-images-container {
+                gap: 15px; /* PC间距稍小 */
+                max-width: 800px; /* 可选：限制容器宽度，居中显示 */
+                margin: 0 auto;
+            }
+            
+            .all-images-container img {
+                max-height: 400px; /* 可选：PC限高，防止极长图片拉长页面 */
+                object-position: center; /* 居中对齐 */
+            }
         }
 
         /* ✅ 固定右下角社交按钮 */

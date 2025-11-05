@@ -21,17 +21,19 @@
     <!-- 使用导航组件 -->
     <nav-component></nav-component>
 
-    <p><b><i>All items ship from China</i></b></p>
-    <p><i>Your order will be delivered in 7-14 business days with full tracking service</i></p>
+    <div class="info-wrapper">
+        <p class="info"><b><i>All items ship from China</i></b></p>
+        <p><i>Your order will be delivered in 7-14 business days with full tracking service</i></p>
+    </div>
 
     <div v-for="item in list" class="category-section">
       <h2 class="category-title">{{item.category}}</h2>
       <div class="product-container">
         <div class="product-inner">
           <div v-for="subItem in item.plist" class="product-card">
-            <a :href='"./detail.html?pid="+subItem.pid' > 
-              <!-- <img :src='subItem.cover' class="product-image" loading="lazy" :alt="'产品图片 ' + subItem.pid">  -->
-              <img :src='"./image/"+subItem.cover' class="product-image" loading="lazy" :alt="'产品图片 ' + subItem.pid"> 
+            <a :href='"./detail.html?categoryId="+item.categoryId+"&pid="+subItem.pid' > 
+              <img :src='subItem.cover' class="product-image" loading="lazy" :alt="'产品图片 ' + subItem.pid"> 
+              <!-- <img :src='"./image/"+subItem.cover' class="product-image" loading="lazy" :alt="'产品图片 ' + subItem.pid">  -->
             </a>
             <div class="product-price">${{subItem.price}}</div>
             <div class="buy-links">
