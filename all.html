@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Newhappybuy</title>
+
+  <link rel="stylesheet" href="index.css">
+
+  <!-- 字体与图标 -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+</head>
+<body>
+  <div id="app">
+
+   <!-- 使用导航组件 -->
+    <nav-component></nav-component>
+
+    <div v-for="item in list" class="category-section">
+      <h2 class="category-title">{{item.category}}</h2>
+      <div class="product-container">
+        <div class="product-inner">
+          <div v-for="subItem in item.currentPlist" class="product-card">
+            <a :href='"./detail.html?pid="+subItem.pid' > 
+              <img :src='"./image/"+subItem.cover' class="product-image" loading="lazy" :alt="'产品图片 ' + subItem.pid"> 
+            </a>
+            <div class="product-price">${{subItem.price}}</div>
+            <div class="buy-links">
+              <span v-for="linkItem in purchaseLinks(subItem.pid)" class="buy-link-item">
+                <img :src="linkItem.icon" class="buy-link-icon" />
+                <a :href="linkItem.link" class="buy-link" target="_blank">{{linkItem.name}}</a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button v-if="item.hasNextPage" @click="loadMore(item)" class="fancy-button">View More
+        <!-- <span class="arrow">→</span> -->
+      </button>
+      <button v-else class="fancy-button" disabled>Loaded All</button>
+    </div>
+
+    <social-component></social-component>
+
+  </div>
+  
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <!-- 引入导航组件 -->
+  <script src="./component/NavComponent.js"></script>
+  <script src="./component/SocialComponent.js"></script>
+
+  
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        currentCategoryId: 0,
+        list: [],  // 要渲染的类目（从JSON过滤后）
+        allList: []  // 完整数据源，从JSON加载
+      },
+      methods: {
+        async loadData() {
+          try {
+            const response = await fetch('./data.json');  // 读取data.json（调整路径如果需要）
+            if (!response.ok) {
+              throw new Error('加载数据失败: ' + response.status);
+            }
+            const data = await response.json();
+            const pageSize = 12;  // 只需修改这里（每页6条），其他自动适应
+            this.allList = data.map(category => ({
+              ...category,
+              page: 1,  // 当前页码
+              pageSize: pageSize,  // 每页数量
+              currentPlist: category.plist.slice(0, pageSize),  // 初始显示第一页（动态）
+              totalPages: Math.ceil(category.plist.length / pageSize),  // 总页数（动态）
+              hasNextPage: category.plist.length > pageSize  // 初始是否有下一页（动态）
+            }));  // 添加分页相关属性
+
+            // 获取 URL 参数并过滤
+            const urlParams = new URLSearchParams(window.location.search);
+            this.currentCategoryId = parseInt(urlParams.get('categoryId')) || 0;
+            if (this.currentCategoryId > 0) {
+              // 单类别显示：过滤匹配的类别
+              this.list = this.allList.filter(item => item.categoryId == this.currentCategoryId);
+            } else {
+              // 无参数：显示所有类别
+              this.list = this.allList;
+            }
+          } catch (error) {
+            console.error('读取JSON失败:', error);
+            // 可选：设置默认数据或显示错误提示
+          }
+        },
+        loadMore(item) {
+          // 加载下一页
+          item.page += 1;
+          if (item.page <= item.totalPages) {
+            const start = (item.page - 1) * item.pageSize;
+            const end = start + item.pageSize;
+            const nextPage = item.plist.slice(start, end);
+            item.currentPlist = item.currentPlist.concat(nextPage);
+            // 更新是否有下一页
+            item.hasNextPage = item.page < item.totalPages;
+          }
+        },
+        purchaseLinks(itemId) {
+          const parsedUrl = new URL(`https://weidian.com/item.html?itemID=${itemId}`);
+          const itemID = parsedUrl.searchParams.get('itemID');
+          if (!itemID) throw new Error('无法从 URL 提取 itemID');
+          const encodedUrl = encodeURIComponent(parsedUrl.toString());
+          return [
+            {name: 'cnfans', icon: "./icon/cnfans.ico", link: `https://cnfans.com/product?id=${itemID}&platform=WEIDIAN`},
+            {name: 'hoobuy', icon: "./icon/hoo32.ico", link: `https://hoobuy.com/product/2/${itemID}`},
+            {name: 'oopbuy', icon: "./icon/oop.png", link: `https://oopbuy.com/product/weidian/${itemID}`},
+            {name: 'mulebuy', icon: "./icon/mulebuy.ico", link: `https://mulebuy.com/zh/product/?shop_type=weidian&id=${itemID}`},
+            {name: 'allchinabuy', icon: "./icon/chinabuy.ico", link: `https://www.allchinabuy.com/en/page/buy/?nTag=Home-search&from=search-input&_search=url&position=&url=${encodedUrl}`},
+            {name: 'kakobuy', icon: "./icon/kakobuy.png", link: `https://www.kakobuy.com/item/details?url=${encodedUrl}`}
+          ];
+        },
+        isActive(id) {
+          return this.currentCategoryId == id;
+        }
+      },
+      mounted() {
+        this.loadData();  // 页面加载后异步读取并过滤数据
+      }
+    });
+  </script>
+  
+  <script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  window.si = window.si || function () { (window.si q = window.siq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
+</body>
+</html>

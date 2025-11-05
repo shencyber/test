@@ -1,0 +1,231 @@
+[
+  {
+    "categoryId": 1,
+    "category": "Coats and Jackets",
+    "plist": [
+      {
+        "cover": "cover-114.png",
+        "price": 80,
+        "pid": "7571117522"
+      },
+      {
+        "cover": "cover-115.png",
+        "price": 67,
+        "pid": "7571199196"
+      },
+      {
+        "cover": "cover-116.png",
+        "price": 91,
+        "pid": "7569350529"
+      },
+      {
+        "cover": "cover-117.png",
+        "price": 88,
+        "pid": "7570220814"
+      },
+      {
+        "cover": "cover-118.png",
+        "price": 40.8,
+        "pid": "7569488427"
+      },
+      {
+        "cover": "cover-119.png",
+        "price": 36.8,
+        "pid": "7569638463"
+      },
+      {
+        "cover": "cover-120.png",
+        "price": 66.8,
+        "pid": "7571950028"
+      },
+      {
+        "cover": "cover-121.png",
+        "price": 62,
+        "pid": "7570245693"
+      },
+      {
+        "cover": "cover-122.png",
+        "price": 58,
+        "pid": "7572053014"
+      },
+      {
+        "cover": "cover-123.png",
+        "price": 79.88,
+        "pid": "7569686501"
+      },
+      {
+        "cover": "cover-124.png",
+        "price": 57,
+        "pid": "7569424911"
+      },
+      {
+        "cover": "cover-125.png",
+        "price": 49.5,
+        "pid": "7570539229"
+      },
+      {
+        "cover": "cover-126.png",
+        "price": 82,
+        "pid": "7572561756"
+      },
+      {
+        "cover": "cover-127.jpg",
+        "price": 71,
+        "pid": "7570657989"
+      },
+      {
+        "cover": "cover-128.jpg",
+        "price": 77.6,
+        "pid": "7572548304"
+      },
+      {
+        "cover": "cover-129.png",
+        "price": 71,
+        "pid": "7570686283"
+      },
+      {
+        "cover": "cover-130.png",
+        "price": 66.7,
+        "pid": "7570646985"
+      },
+      {
+        "cover": "cover-131.png",
+        "price": 45,
+        "pid": "7572681598"
+      }
+    ]
+  },
+  {
+    "categoryId": 2,
+    "category": "Hoodies and Pants",
+    "plist": [
+      {
+        "cover": "cover-103.jpg",
+        "price": 17.5,
+        "pid": "7545705483"
+      },
+      {
+        "cover": "cover-56.jpg",
+        "price": 24.8,
+        "pid": "7529779659"
+      },
+      {
+        "cover": "cover-49.jpg",
+        "price": 16,
+        "pid": "7531281210"
+      },
+      {
+        "cover": "cover-105.jpg",
+        "price": 15.9,
+        "pid": "7538021511"
+      },
+      {
+        "cover": "cover-108.jpg",
+        "price": 30,
+        "pid": "7538152229"
+      },
+      {
+        "cover": "cover-79.jpg",
+        "price": 15.99,
+        "pid": "7545883403"
+      },
+      {
+        "cover": "cover-88.jpg",
+        "price": 24.7,
+        "pid": "7538318798"
+      },
+      {
+        "cover": "cover-87.jpg",
+        "price": 24.7,
+        "pid": "7536669895"
+      },
+      {
+        "cover": "cover-85.jpg",
+        "price": 23,
+        "pid": "7536564491"
+      },
+      {
+        "cover": "cover-84.jpg",
+        "price": 26,
+        "pid": "7536400409"
+      },
+      {
+        "cover": "cover-63.jpg",
+        "price": 15,
+        "pid": "7530076935"
+      },
+      {
+        "cover": "cover-61.jpg",
+        "price": 16.8,
+        "pid": "7532011654"
+      },
+      {
+        "cover": "cover-38.jpg",
+        "price": 20,
+        "pid": "7530576484"
+      },
+      {
+        "cover": "cover-60.jpg",
+        "price": 16,
+        "pid": "7531871390"
+      },
+      {
+        "cover": "cover-50.jpg",
+        "price": 16,
+        "pid": "7529455285"
+      },
+      {
+        "cover": "cover-90.jpg",
+        "price": 16,
+        "pid": "7537534355"
+      },
+      {
+        "cover": "cover-102.jpg",
+        "price": 16,
+        "pid": "7537941571"
+      },
+      {
+        "cover": "cover-59.jpg",
+        "price": 16,
+        "pid": "7529712419"
+      }
+    ]
+  },
+  {
+    "categoryId": 3,
+    "category": "T-shirt and Shorts",
+    "plist": [
+      {
+        "cover": "cover-76.jpg",
+        "price": 12,
+        "pid": "7541821287"
+      },
+      {
+        "cover": "cover-75.jpg",
+        "price": 12,
+        "pid": "7534492394"
+      },
+      {
+        "cover": "cover-25.jpg",
+        "price": 12,
+        "pid": "7529708428"
+      },
+      {
+        "cover": "cover-23.jpg",
+        "price": 12,
+        "pid": "7529565254"
+      },
+      {
+        "cover": "cover-74.jpg",
+        "price": 12,
+        "pid": "7534357488"
+      },
+      {
+        "cover": "cover-73.jpg",
+        "price": 12,
+        "pid": "7532467373"
+      }
+    ]
+  }
+]
+
