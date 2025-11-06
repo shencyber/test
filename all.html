@@ -26,8 +26,9 @@
       <div class="product-container">
         <div class="product-inner">
           <div v-for="subItem in item.currentPlist" class="product-card">
-            <a :href='"./detail.html?pid="+subItem.pid' > 
-              <img :src='"./image/"+subItem.cover' class="product-image" loading="lazy" :alt="'产品图片 ' + subItem.pid"> 
+              <a :href='"./detail.html?categoryId="+currentCategoryId+"&pid="+subItem.pid' >
+              <!-- <img :src='"./image/"+subItem.cover' class="product-image" loading="lazy" :alt="'产品图片 ' + subItem.pid">  -->
+              <img :src='subItem.cover' class="product-image" loading="lazy" :alt="'image ' + subItem.pid"> 
             </a>
             <div class="product-price">${{subItem.price}}</div>
             <div class="buy-links">

@@ -318,6 +318,7 @@
               if (category) {
                 const product = category.plist.find(item => item.pid === pid);
                 if (product) {
+                    console.log("product" , product)
                   this.currentProduct = product;
                   this.currentTitle = product.title || '';
                   this.currentSubtitle = product.subtitle || ''; // 如果数据中无 subtitle，则为空
@@ -354,6 +355,7 @@
           wrapper.scrollBy({ top: direction * itemHeight, behavior: 'smooth' });
         },
         purchaseLinks(itemId) {
+            console.log( 'itemId',itemId )
           const parsedUrl = new URL(`https://weidian.com/item.html?itemID=${itemId}`);
           const itemID = parsedUrl.searchParams.get('itemID');
           if (!itemID) throw new Error('无法从 URL 提取 itemID');
