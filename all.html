@@ -73,7 +73,7 @@
               throw new Error('加载数据失败: ' + response.status);
             }
             const data = await response.json();
-            const pageSize = 12;  // 只需修改这里（每页6条），其他自动适应
+            const pageSize = 12;  // 只需修改这里，其他自动适应
             this.allList = data.map(category => ({
               ...category,
               page: 1,  // 当前页码

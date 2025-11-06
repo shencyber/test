@@ -140,7 +140,7 @@
         }
 
         .product-title {
-            font-size: 1.8em;
+            font-size: 1.4em;
             color: #2d3436;
             margin-bottom: 8px;
             font-weight: 500;
@@ -491,6 +491,139 @@
                 right: 15px;
                 gap: 8px;
             }
+        }
+        
+
+
+         /*模块：大图查看模态框（图片查看器） - CSS 样式
+         描述：定义模态框的外观、动画和响应式适配*/
+   
+         /* 大图查看模态框样式 */
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.9);
+            animation: fadeIn 0.3s;
+            display: flex; /* 使用flex居中内容，替换原display:none */
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 移除 .modal.show，因为v-if已控制显示；直接用 .modal 的display:flex */
+
+        .modal-content {
+            position: relative;
+            margin: auto;
+            padding: 0;
+            width: 90%;
+            max-width: 1200px;
+            height: 80%;
+            top: 50%;
+            transform: translateY(-50%);
+            text-align: center;
+        }
+
+        .modal img {
+            width: auto;
+            height: 100%;
+            max-width: 100%;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .close:hover {
+            color: #ccc;
+        }
+
+        .prev,
+        .next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            border: none;
+            padding: 15px;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+        }
+
+        .prev {
+            left: 10px;
+        }
+
+        .next {
+            right: 10px;
+        }
+
+        .prev:hover,
+        .next:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* 移动端优化：全屏适配 */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 100%;
+                height: 100%;
+                padding: 0;
+            }
+
+            .modal img {
+                height: 100vh;
+                width: auto;
+            }
+
+            .close {
+                top: 10px;
+                right: 10px;
+                font-size: 30px;
+            }
+
+            .prev,
+            .next {
+                font-size: 24px;
+                padding: 10px;
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        /* 确保所有图片可点击：覆盖可能的pointer-events问题 */
+        .main-img,
+        .mobile-slide img,
+        .all-images-container img {
+            cursor: pointer !important;
+            pointer-events: auto !important;
         }
 
         
