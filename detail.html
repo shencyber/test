@@ -224,7 +224,7 @@
 
             <div class="product-info" style="border:1px soid red;">
                 <h1 class="product-title">{{ currentTitle }}</h1>
-                <!-- <p class="product-subtitle">{{ currentSubtitle }}</p> -->
+                <p class="product-subtitle">{{ currentSubtitle }}</p>
                 <div class="product-price">{{ currentPrice }}</div>
                 <!-- <div class="product-desc" v-html="currentDesc"></div> -->
                 <button class="buy-btn" @click="toggleBuyLinks">{{ showBuyLinks ? 'Hide Links' : 'Buy Now' }}</button>
@@ -323,7 +323,7 @@
                   this.currentTitle = product.title || '';
                   this.currentSubtitle = product.subtitle || ''; // 如果数据中无 subtitle，则为空
                   this.currentPrice = `$${product.price}`; // 格式化为 $80
-                  this.currentDesc = product.desc || ''; // 如果数据中无 desc，则为空
+                  // this.currentDesc = product.desc || ''; // 如果数据中无 desc，则为空
                   // 合并 cover 和 images 数组（修复：添加cover以完整显示）
                   this.currentProductImages = product.images;
                   this.currentMainIndex = 0; // 默认显示第一个（cover）
