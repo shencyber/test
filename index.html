@@ -9,108 +9,356 @@
   <title>Newhappybuy</title>
 
   <link rel="stylesheet" href="./style/index.css">
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
 
-  <!-- 字体与图标 -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    /* 购买链接样式 */
+    .buy-links {
+      display: none; /* 暂时隐藏购买链接 */
+    }
+
+    /* 分页按钮样式 */
+    .pagination-buttons {
+      text-align: center;
+      margin: 10px 0 30px 0; /* 上边距减小，下边距保持 */
+    }
+
+    /* View More 按钮 - 使用原来的a标签样式 */
+    .fancy-button {
+      margin-top: 20px;
+      background: transparent;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 16px;
+      font-weight: 500;
+      color: #333;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .fancy-button .arrow {
+      font-size: 18px;
+      transition: transform 0.3s ease;
+    }
+
+    .fancy-button:hover {
+      background: rgba(0,0,0,0.05);
+      border-color: #555;
+      color: #555;
+    }
+
+    .fancy-button:hover .arrow {
+      transform: translateX(5px);
+    }
+
+    /* 分类模块间距 */
+    .category-section {
+      margin-bottom: 40px; /* 分类模块之间的间距 */
+    }
+</style>
 
 </head>
 <body>
   <div id="app">
-
     <!-- 使用导航组件 -->
     <nav-component></nav-component>
+    
+    <!-- 分类组件 -->
+    <category-component 
+      :categories="categoryData.categories"
+      :loading="categoryData.loading"
+      :error="categoryData.error"
+      @retry="handleCategoryRetry"
+    ></category-component>
 
     <div class="info-wrapper">
         <p class="info"><b><i>All items ship from China</i></b></p>
-        <p><i>Your order will be delivered in 7-14 business days with full tracking service</i></p>
+        <p><i>Delivery in 7-14 business days with full tracking.</i></p>
     </div>
 
-    <div v-for="item in list" class="category-section">
-      <h2 class="category-title">{{item.category}}</h2>
-      <div class="product-container">
-        <div class="product-inner">
-          <div v-for="subItem in item.plist" class="product-card">
-            <a :href='"./detail.html?categoryId="+item.categoryId+"&pid="+subItem.pid' > 
-              <img :src='subItem.cover' class="product-image" loading="lazy" :alt="'image ' + subItem.pid"> 
-              <!-- <img :src='"./image/"+subItem.cover' class="product-image" loading="lazy" :alt="'产品图片 ' + subItem.pid">  -->
-            </a>
-            <div class="product-price">${{subItem.price}}</div>
-            <div class="buy-links">
-              <span v-for="linkItem in purchaseLinks(subItem.pid)" class="buy-link-item">
-                <img :src="linkItem.icon" class="buy-link-icon" />
-                <a :href="linkItem.link" class="buy-link" target="_blank">{{linkItem.name}}</a>
-              </span>
-            </div>
-          </div>
-        </div>
+    <!-- 循环渲染每个分类的商品展示组件和分页按钮 -->
+    <template v-for="categorySection in categorySectionData">
+      <h2 class="category-title">{{categorySection.category}}</h2>
+      <category-section-component 
+        :key="categorySection.categoryId"
+        :category-data="categorySection"
+      ></category-section-component>
+      
+      <!-- 每个分类自己的分页按钮 - 使用原来的a标签 -->
+      <div class="pagination-buttons" v-if="!categorySection.loading">
+        <a :href="'./all.html?categoryId=' + categorySection.categoryId + '&categoryName=' + categorySection.category" class="fancy-button">
+          View More<span class="arrow">→</span>
+        </a>
       </div>
-      <a :href="'./all.html?categoryId='+item.categoryId" class="fancy-button">View More<span class="arrow">→</span></a>
-      <!-- <a :href="'./all_'+item.categoryId+'.html?categoryId='+item.categoryId" class="fancy-button">View More<span class="arrow">→</span></a> -->
-    </div>
-
+    </template>
 
     <social-component></social-component>
-    
   </div>
 
   <!-- Vue -->
   <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
-
+  <!-- 先引入 api.js -->
+  <script src="./api.js"></script>
+  
   <!-- 引入导航组件 -->
   <script src="./component/NavComponent.js"></script>
+  <script src="./component/CategoryComponent.js"></script>
+  <script src="./component/CategorySectionComponent.js"></script>
   <script src="./component/SocialComponent.js"></script>
-  
+    
   <script>
-    var app = new Vue({
-      el: '#app',
-      data: {
-        list: []  // 初始为空，fetch后填充
-      },
-      methods: {
-        async loadData() {
-          try {
-            const response = await fetch('./data.json');  // 读取data.json（调整路径如果需要）
-            if (!response.ok) {
-              throw new Error('加载数据失败: ' + response.status);
-            }
-            const data = await response.json();
-            // 限制每个分类最多18个产品
-            this.list = data.map(category => ({
-              ...category,
-              plist: category.plist.slice(0, 6)
-            }));
-          } catch (error) {
-            console.error('读取JSON失败:', error);
-            // 可选：设置默认数据或显示错误提示
-          }
-        },
-        purchaseLinks(itemId) {
-          const parsedUrl = new URL(`https://weidian.com/item.html?itemID=${itemId}`);
-          const itemID = parsedUrl.searchParams.get('itemID');
-          if (!itemID) throw new Error('无法从 URL 提取 itemID');
-          const encodedUrl = encodeURIComponent(parsedUrl.toString());
-          return [
-            {name: 'cnfans', icon: "./icon/cnfans.ico", link: `https://cnfans.com/product?id=${itemID}&platform=WEIDIAN`},
-            {name: 'hoobuy', icon: "./icon/hoo32.ico", link: `https://hoobuy.com/product/2/${itemID}`},
-            {name: 'oopbuy', icon: "./icon/oop.png", link: `https://oopbuy.com/product/weidian/${itemID}`},
-            {name: 'mulebuy', icon: "./icon/mulebuy.ico", link: `https://mulebuy.com/zh/product/?shop_type=weidian&id=${itemID}`},
-            {name: 'allchinabuy', icon: "./icon/chinabuy.ico", link: `https://www.allchinabuy.com/en/page/buy/?nTag=Home-search&from=search-input&_search=url&position=&url=${encodedUrl}`},
-            {name: 'kakobuy', icon: "./icon/kakobuy.png", link: `https://www.kakobuy.com/item/details?url=${encodedUrl}`}
-          ];
+   var app = new Vue({
+  el: '#app',
+  data: {
+    // 分类组件的数据
+    categoryData: {
+      categories: [],
+      loading: false,
+      error: null
+    },
+    // 商品分类展示组件的数据
+    categorySectionData: [],
+    // 配置变量
+    config: {
+      productsPerCategory: 6 // 每个分类获取的商品数量
+    },
+    // 懒加载相关
+    observer: null,
+    // 懒加载控制
+    lazyLoadEnabled: false
+  },
+  methods: {
+    // 加载分类数据
+    async loadCategories() {
+      console.log('父组件开始加载分类数据...');
+      this.categoryData.loading = true;
+      this.categoryData.error = null;
+      
+      try {
+        const result = await categoryApi.getCategoryList();
+        console.log('分类API响应:', result);
+        
+        if (result.code === 200) {
+          this.categoryData.categories = result.data || [];
+          console.log('分类加载成功，数量:', this.categoryData.categories.length);
+          // 分类加载成功后初始化商品数据结构
+          this.initProductSections();
+        } else {
+          this.categoryData.error = result.msg || '获取分类列表失败';
         }
-      },
-      mounted() {
-        this.loadData();  // 页面加载后异步读取数据
+      } catch (error) {
+        console.error('加载分类数据失败:', error);
+        this.categoryData.error = '网络请求失败，请检查网络连接';
+      } finally {
+        this.categoryData.loading = false;
       }
-    });
-  </script>
+    },
 
-  <script>
-    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+    // 初始化商品数据结构
+    initProductSections() {
+      console.log('初始化商品数据结构...');
+      
+      // 创建所有分类的数据结构
+      this.categorySectionData = this.categoryData.categories.map(category => ({
+        categoryId: category.id,
+        category: category.name,
+        plist: [], // 初始为空数组
+        loading: false,
+        loaded: false,
+        error: null,
+        // 新增分页相关字段
+        pagination: {
+          page: 1,
+          total: 0,
+          totalPages: 0
+        },
+        hasMore: false
+      }));
+      
+      console.log('初始化完成，分类数量:', this.categorySectionData.length);
+      
+      // 立即加载前2个分类
+      this.loadInitialSections();
+    },
+
+    // 加载初始分类（前2个）
+    loadInitialSections() {
+      const initialSections = this.categorySectionData.slice(0, 2);
+      let loadedCount = 0;
+      const totalCount = initialSections.length;
+      
+      if (totalCount === 0) {
+        // 如果没有需要加载的分类，直接初始化观察器
+        this.enableLazyLoad();
+        return;
+      }
+      
+      console.log(`开始加载前 ${totalCount} 个分类`);
+      
+      initialSections.forEach(section => {
+        if (!section.loaded && !section.loading) {
+          // 记录加载开始时间
+          const startTime = Date.now();
+          
+          this.loadCategoryProducts(section.categoryId, section).finally(() => {
+            loadedCount++;
+            const loadTime = Date.now() - startTime;
+            console.log(`分类 ${section.categoryId} 加载完成 (${loadedCount}/${totalCount}), 耗时: ${loadTime}ms`);
+            
+            // 当所有初始分类都加载完成后，启用懒加载
+            if (loadedCount === totalCount) {
+              console.log('所有初始分类加载完成，启用懒加载');
+              this.enableLazyLoad();
+            }
+          });
+        } else {
+          loadedCount++;
+          // 如果已经加载过了，也计数
+          if (loadedCount === totalCount) {
+            console.log('所有初始分类已加载，启用懒加载');
+            this.enableLazyLoad();
+          }
+        }
+      });
+    },
+
+    // 启用懒加载
+    enableLazyLoad() {
+      this.lazyLoadEnabled = true;
+      console.log('懒加载已启用');
+      
+      // 初始化懒加载观察器
+      this.$nextTick(() => {
+        this.initLazyLoadObserver();
+      });
+    },
+
+    // 初始化懒加载观察器
+    initLazyLoadObserver() {
+      console.log('初始化懒加载观察器...');
+      
+      // 清理旧的观察器
+      if (this.observer) {
+        this.observer.disconnect();
+      }
+      
+      // 创建新的 Intersection Observer
+      this.observer = new IntersectionObserver((entries) => {
+        if (!this.lazyLoadEnabled) {
+          console.log('懒加载未启用，跳过处理');
+          return;
+        }
+        
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            // 通过索引来识别分类
+            const sections = document.querySelectorAll('.category-section');
+            const index = Array.from(sections).indexOf(entry.target);
+            
+            if (index !== -1 && this.categorySectionData[index]) {
+              const categorySection = this.categorySectionData[index];
+              
+              if (categorySection && !categorySection.loaded && !categorySection.loading) {
+                console.log(`懒加载分类 ${categorySection.categoryId} 进入可视区域`);
+                this.loadCategoryProducts(categorySection.categoryId, categorySection);
+              }
+            }
+          }
+        });
+      }, {
+        rootMargin: '200px 0px',
+        threshold: 0.1
+      });
+      
+      // 观察所有分类区域
+      const sections = document.querySelectorAll('.category-section');
+      console.log('找到的分类区域数量:', sections.length);
+      
+      sections.forEach((section, index) => {
+        this.observer.observe(section);
+      });
+      
+      console.log(`开始观察 ${sections.length} 个分类区域`);
+    },
+
+    // 加载单个分类的商品数据
+    async loadCategoryProducts(categoryId, categorySection, isLoadMore = false) {
+      // 避免重复加载
+      if (categorySection.loading) {
+        return;
+      }
+      
+      console.log(`开始加载分类 ${categoryId} 的商品数据...`);
+      categorySection.loading = true;
+      categorySection.error = null;
+      
+      try {
+        const page = isLoadMore ? categorySection.pagination.page + 1 : 1;
+        
+        const result = await productApi.getProductList({
+          page: page,
+          pageSize: this.config.productsPerCategory,
+          category_id: categoryId
+        });
+        
+        if (result.code === 200) {
+          if (isLoadMore) {
+            // 加载更多：追加数据
+            categorySection.plist = categorySection.plist.concat(result.data.list || []);
+            categorySection.pagination.page++;
+          } else {
+            // 首次加载：替换数据
+            categorySection.plist = result.data.list || [];
+            categorySection.pagination.page = 1;
+          }
+          
+          categorySection.pagination.total = result.data.total || 0;
+          categorySection.pagination.totalPages = result.data.total_pages || 0;
+          // 计算是否还有更多
+          categorySection.hasMore = categorySection.pagination.page < categorySection.pagination.totalPages;
+          categorySection.loaded = true;
+          
+          console.log(`分类 ${categoryId} 商品加载成功，数量:`, categorySection.plist.length, 
+                     `页码: ${categorySection.pagination.page}/${categorySection.pagination.totalPages}`);
+        } else {
+          categorySection.error = result.msg || '获取商品列表失败';
+          console.error(`分类 ${categoryId} 商品加载失败:`, result.msg);
+        }
+      } catch (error) {
+        categorySection.error = '网络请求失败，请检查网络连接';
+        console.error(`加载分类 ${categoryId} 商品数据失败:`, error);
+      } finally {
+        categorySection.loading = false;
+      }
+    },
+
+    // 分类组件重试
+    handleCategoryRetry() {
+      this.loadCategories();
+    },
+
+    // 初始化加载所有数据
+    initData() {
+      this.loadCategories();
+    }
+  },
+  mounted() {
+    console.log('父组件已挂载');
+    this.initData();
+  },
+  beforeDestroy() {
+    // 清理观察器
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+  }
+});
   </script>
-  <script defer src="/_vercel/insights/script.js"></script>
-  <script defer src="/_vercel/speed-insights/script.js"></script>
+  
 </body>
 </html>

@@ -5,14 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Newhappybuy</title>
     <link rel="stylesheet" href="./style/detail.css">
+    <!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap"> -->
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
 
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- =====================================================
-         模块：大图查看模态框（图片查看器） - CSS 样式
-         描述：定义模态框的外观、动画和响应式适配
-    ===================================================== -->
     <style>
         /* 大图查看模态框样式 */
         .modal {
@@ -25,7 +20,7 @@
             overflow: auto;
             background-color: rgba(0, 0, 0, 0.9);
             animation: fadeIn 0.3s;
-            display: flex; /* 使用flex居中内容，替换原display:none */
+            display: flex;
             align-items: center;
             justify-content: center;
         }
@@ -140,21 +135,18 @@
             pointer-events: auto !important;
         }
 
-        /* =====================================================
-             模块：移动端Slider - CSS 优化（修改处：添加这些样式以提升灵敏度）
-             描述：提升滑动灵敏度，添加transition、flex布局和touch-action
-        ===================================================== */
+        /* 移动端Slider - CSS 优化 */
         @media (max-width: 768px) {
             .mobile-slides {
                 display: flex;
-                transition: transform 0.2s ease-out; /* 修改：缩短动画时间，加快snap响应 */
-                width: 100%; /* 确保slides宽匹配viewport */
+                transition: transform 0.2s ease-out;
+                width: 100%;
                 height: 100%;
-                will-change: transform; /* 优化性能：提示浏览器优化transform */
+                will-change: transform;
             }
 
             .mobile-slide {
-                min-width: 100%; /* 每个slide占满宽度 */
+                min-width: 100%;
                 flex-shrink: 0;
                 display: flex;
                 align-items: center;
@@ -168,25 +160,51 @@
             }
 
             .mobile-slider {
-                overflow: hidden; /* 隐藏溢出部分 */
-                touch-action: pan-y; /* 修改：限制为垂直pan，水平滑动自定义处理 */
-                user-select: none; /* 防止文字选中干扰滑动 */
+                overflow: hidden;
+                touch-action: pan-y;
+                user-select: none;
             }
 
             .mobile-indicator {
-                pointer-events: auto; /* 确保指示器可点击 */
+                pointer-events: auto;
             }
         }
-    </style>
 
+        /* 加载状态样式 */
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        .error {
+            text-align: center;
+            padding: 50px;
+            color: #ff4444;
+        }
+
+        /* 卖点样式 */
+        .product-selling-points {
+            margin: 15px 0;
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+    </style>
 </head>
 <body>
     <div id="app">
-       <!-- 使用导航组件 -->
+        <!-- 使用导航组件 -->
         <nav-component></nav-component>
 
+        <!-- 加载状态 -->
+        <div v-if="loading" class="loading">Loading product details...</div>
+        
+        <!-- 错误状态 -->
+        <div v-if="error" class="error">{{ error }}</div>
+
         <!-- 商品详情容器 -->
-        <div class="product-detail-container">
+        <div v-if="!loading && !error && currentProduct" class="product-detail-container">
             <div class="product-images">
                 <!-- PC端缩略图和主图 -->
                 <div class="thumb-container">
@@ -196,44 +214,49 @@
                             <img 
                                 v-for="(img, index) in currentProductImages" 
                                 :key="index"
-                                :src="img" 
+                                :src="getImageUrl(img.url)" 
                                 :class="{ active: currentMainIndex === index }"
                                 @click="switchMainImg(index)"
                                 loading="lazy"
+                                @error="handleImageError"
                             >
                         </div>
                     </div>
                     <div class="arrow arrow-down" @click="scrollThumbs(1)">▼</div>
                 </div>
-                <!-- =====================================================
-                     模块：大图查看模态框（图片查看器） - 主图点击事件
-                     描述：点击主图打开模态框查看大图
-                ===================================================== -->
-                <img :src="currentProductImages[currentMainIndex]" class="main-img" alt="商品大图" @click="openModal(currentMainIndex)">
+                
+                <!-- 主图 -->
+                <img 
+                    :src="getImageUrl(currentProductImages[currentMainIndex]?.url)" 
+                    class="main-img" 
+                    alt="商品大图" 
+                    @click="openModal(currentMainIndex)"
+                    @error="handleImageError"
+                >
 
-                <!-- 移动端滑动区域 - 默认隐藏，移动端显示 -->
-                <div class="mobile-slider" id="mobileSlider">
-                    <div class="mobile-slides" id="mobileSlides">
-                        <!-- 移动端图片将通过JS动态生成 -->
-                    </div>
-                    <div class="mobile-indicators" id="mobileIndicators">
-                        <!-- 指示器将通过JS动态生成 -->
-                    </div>
+                <!-- 移动端滑动区域 -->
+                <div class="mobile-slider" v-if="currentProductImages.length" id="mobileSlider">
+                    <div class="mobile-slides" id="mobileSlides"></div>
+                    <div class="mobile-indicators" id="mobileIndicators"></div>
                 </div>
             </div>
 
-            <div class="product-info" style="border:1px soid red;">
-                <h1 class="product-title">{{ currentTitle }}</h1>
-                <p class="product-subtitle">{{ currentSubtitle }}</p>
-                <div class="product-price">{{ currentPrice }}</div>
-                <!-- <div class="product-desc" v-html="currentDesc"></div> -->
+            <div class="product-info">
+                <h1 class="product-title">{{ currentProduct.title }}</h1>
+                
+                <!-- 卖点 - 用 • 符号连接 -->
+                <div v-if="currentProduct.selling_points" class="product-selling-points">
+                    {{ formatSellingPoints(currentProduct.selling_points) }}
+                </div>
+                
+                <div class="product-price">${{ currentProduct.price_usa }}</div>
                 <button class="buy-btn" @click="toggleBuyLinks">{{ showBuyLinks ? 'Hide Links' : 'Buy Now' }}</button>
                 
                 <!-- 购买链接区域 -->
                 <div class="buy-links-container" :style="{ display: showBuyLinks ? 'block' : 'none' }">
                     <div class="buy-links-title">Select Purchase Platform:</div>
                     <div class="buy-links">
-                        <div v-for="(linkItem, index) in purchaseLinks(currentProduct ? currentProduct.pid : '')" :key="index" class="buy-link-item">
+                        <div v-for="(linkItem, index) in purchaseLinks(currentProduct.weidian_id)" :key="index" class="buy-link-item">
                             <img :src="linkItem.icon" class="buy-link-icon" />
                             <a :href="linkItem.link" class="buy-link" target="_blank">{{linkItem.name}}</a>
                         </div>
@@ -241,350 +264,356 @@
                 </div>
             </div>
 
-            <!-- 新增图片展示模块 -->
-            <section class="all-images-section">
+            <!-- 图片展示模块 -->
+            <section v-if="currentProductImages.length" class="all-images-section">
                 <h2>Product Detail</h2>
-                <div class="all-images-container" id="allImagesContainer">
-                    <!-- 所有图片将通过JS动态生成 -->
-                </div>
+                <div class="all-images-container" id="allImagesContainer"></div>
             </section>
         </div>
 
         <!-- 社交按钮 -->
         <social-component></social-component>
 
-        <!-- =====================================================
-             模块：大图查看模态框（图片查看器） - HTML 结构
-             描述：模态框DOM，包含图片、关闭按钮和导航按钮
-        ===================================================== -->
+        <!-- 大图查看模态框 -->
         <div v-if="showModal" class="modal" @click="closeModal">
             <div class="modal-content" @click.stop>
                 <span class="close" @click="closeModal">&times;</span>
-                <img :src="currentProductImages[modalImageIndex]" :alt="`商品大图 ${modalImageIndex + 1}`">
+                <img 
+                    :src="getImageUrl(currentProductImages[modalImageIndex]?.url)" 
+                    :alt="`商品大图 ${modalImageIndex + 1}`"
+                    @error="handleImageError"
+                >
                 <button v-if="currentProductImages.length > 1" class="prev" @click="prevModal">&lt;</button>
                 <button v-if="currentProductImages.length > 1" class="next" @click="nextModal">&gt;</button>
             </div>
         </div>
-
     </div>
 
+    <!-- Vue -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <!-- API -->
+    <script src="./api.js"></script>
+    <!-- 组件 -->
+    <script src="./component/NavComponent.js"></script>
+    <script src="./component/SocialComponent.js"></script>
 
-<!-- Vue -->
-  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
-    <!-- 引入导航组件 -->
-  <script src="./component/NavComponent.js"></script>
-  <script src="./component/SocialComponent.js"></script>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                loading: false,
+                error: null,
+                currentProduct: null,
+                currentProductImages: [],
+                currentMainIndex: 0,
+                showBuyLinks: false,
+                showModal: false,
+                modalImageIndex: 0
+            },
+            methods: {
+                // 从URL获取weidian_id参数
+                getWeidianIdFromUrl() {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    return urlParams.get('weidian_id');
+                },
+                
+                // 加载商品详情
+                async loadProductDetail() {
+                    const weidianId = this.getWeidianIdFromUrl();
+                    if (!weidianId) {
+                        this.error = 'Missing product ID';
+                        return;
+                    }
 
+                    this.loading = true;
+                    this.error = null;
 
-  <!-- ✅ 添加Vue实例初始化，确保组件渲染 -->
-  <script>
-    var app = new Vue({
-      el: '#app',
-      data: {
-        // 移除硬编码的 plist，现在从 data.json 动态加载
-        categories: [], // 存储从 data.json 加载的分类数据
-        // 当前匹配的商品数据
-        currentProduct: null,
-        currentTitle: '',
-        currentSubtitle: '',
-        currentPrice: '',
-        currentDesc: '',
-        currentProductImages: [], // 当前商品的所有图片（cover + images）
-        currentMainIndex: 0,
-        showBuyLinks: false,
-        /* =====================================================
-             模块：大图查看模态框（图片查看器） - Vue 数据
-             描述：控制模态框显示状态和当前图片索引
-        ===================================================== */
-        showModal: false,
-        modalImageIndex: 0
-      },
-      methods: {
-        // 解析URL获取 categoryId 和 pid
-        getParamsFromUrl() {
-          const urlParams = new URLSearchParams(window.location.search);
-          return {
-            categoryId: urlParams.get('categoryId'),
-            pid: urlParams.get('pid')
-          };
-        },
-        // 加载数据并匹配商品
-        loadAndMatchProduct(categoryId, pid) {
-          fetch('./data.json')
-            .then(res => res.json())
-            .then(categories => {
-              this.categories = categories; // 可选：存储以备后用
-              const category = categories.find(cat => cat.categoryId == categoryId);
-              if (category) {
-                const product = category.plist.find(item => item.pid === pid);
-                if (product) {
-                    console.log("product" , product)
-                  this.currentProduct = product;
-                  this.currentTitle = product.title || '';
-                  this.currentSubtitle = product.subtitle || ''; // 如果数据中无 subtitle，则为空
-                  this.currentPrice = `$${product.price}`; // 格式化为 $80
-                  // this.currentDesc = product.desc || ''; // 如果数据中无 desc，则为空
-                  // 合并 cover 和 images 数组（修复：添加cover以完整显示）
-                  this.currentProductImages = product.images;
-                  this.currentMainIndex = 0; // 默认显示第一个（cover）
-                  this.$nextTick(() => {
-                    this.initMobileAndAllImages();
-                  });
-                } else {
-                  console.warn('未找到匹配的商品');
-                  // 可添加默认数据或错误处理
+                    try {
+                        const result = await productApi.getProductInfo({
+                            weidian_id: weidianId
+                        });
+
+                        if (result.code === 200 && result.data) {
+                            this.currentProduct = result.data;
+                            // 直接使用API返回的images数组
+                            this.currentProductImages = result.data.images || [];
+                            this.currentMainIndex = 0;
+                            
+                            console.log('商品数据:', this.currentProduct);
+                            console.log('图片数据:', this.currentProductImages);
+                            
+                            // 使用 $nextTick 确保DOM已经更新
+                            this.$nextTick(() => {
+                                // 添加延迟确保DOM完全渲染
+                                setTimeout(() => {
+                                    this.initMobileAndAllImages();
+                                }, 100);
+                            });
+                        } else {
+                            this.error = result.msg || 'Failed to load product details';
+                        }
+                    } catch (err) {
+                        console.error('加载商品详情失败:', err);
+                        this.error = 'Network error, please try again later';
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                // 处理图片URL，修复反斜杠问题
+                getImageUrl(url) {
+                    if (!url) return '';
+                    return url.replace(/\\/g, '');
+                },
+
+                // 图片加载错误处理
+                handleImageError(event) {
+                    console.error('图片加载失败:', event.target.src);
+                    // 可以设置默认图片
+                    event.target.src = './images/default-product.jpg';
+                },
+
+                // 格式化卖点，用 • 符号连接
+                formatSellingPoints(sellingPoints) {
+                    if (!sellingPoints) return '';
+                    
+                    // 如果卖点包含逗号、分号等分隔符，先分割再连接
+                    if (typeof sellingPoints === 'string') {
+                        // 根据常见分隔符分割
+                        const points = sellingPoints.split(/[,，;；|]/).filter(point => point.trim());
+                        if (points.length > 0) {
+                            return points.map(point => point.trim()).join(' • ');
+                        }
+                    }
+                    
+                    return sellingPoints;
+                },
+
+                switchMainImg(index) {
+                    this.currentMainIndex = index;
+                },
+
+                toggleBuyLinks() {
+                    this.showBuyLinks = !this.showBuyLinks;
+                },
+
+                scrollThumbs(direction) {
+                    const wrapper = this.$refs.thumbsWrapper;
+                    const itemHeight = 70;
+                    wrapper.scrollBy({ top: direction * itemHeight, behavior: 'smooth' });
+                },
+
+                purchaseLinks(weidianId) {
+                    if (!weidianId) return [];
+                    
+                    const encodedUrl = encodeURIComponent(`https://weidian.com/item.html?itemID=${weidianId}`);
+                    return [
+                        {name: 'cnfans', icon: "./icon/cnfans.ico", link: `https://cnfans.com/product?id=${weidianId}&platform=WEIDIAN`},
+                        {name: 'hoobuy', icon: "./icon/hoo32.ico", link: `https://hoobuy.com/product/2/${weidianId}`},
+                        {name: 'oopbuy', icon: "./icon/oop.png", link: `https://oopbuy.com/product/weidian/${weidianId}`},
+                        {name: 'mulebuy', icon: "./icon/mulebuy.ico", link: `https://mulebuy.com/zh/product/?shop_type=weidian&id=${weidianId}`},
+                        {name: 'allchinabuy', icon: "./icon/chinabuy.ico", link: `https://www.allchinabuy.com/en/page/buy/?nTag=Home-search&from=search-input&_search=url&position=&url=${encodedUrl}`},
+                        {name: 'kakobuy', icon: "./icon/kakobuy.png", link: `https://www.kakobuy.com/item/details?url=${encodedUrl}`}
+                    ];
+                },
+
+                // 模态框相关方法
+                openModal(index) {
+                    this.modalImageIndex = index;
+                    this.showModal = true;
+                    document.body.style.overflow = 'hidden';
+                },
+
+                closeModal() {
+                    this.showModal = false;
+                    document.body.style.overflow = 'auto';
+                },
+
+                prevModal() {
+                    if (this.modalImageIndex > 0) {
+                        this.modalImageIndex--;
+                    } else {
+                        this.modalImageIndex = this.currentProductImages.length - 1;
+                    }
+                },
+
+                nextModal() {
+                    if (this.modalImageIndex < this.currentProductImages.length - 1) {
+                        this.modalImageIndex++;
+                    } else {
+                        this.modalImageIndex = 0;
+                    }
+                },
+
+                initMobileAndAllImages() {
+                    // 添加安全检查
+                    const mobileSlides = document.getElementById('mobileSlides');
+                    const mobileIndicators = document.getElementById('mobileIndicators');
+                    const allImagesContainer = document.getElementById('allImagesContainer');
+
+                    if (!mobileSlides || !mobileIndicators || !allImagesContainer) {
+                        console.error('Required DOM elements not found');
+                        return;
+                    }
+
+                    if (!this.currentProductImages.length) {
+                        console.warn('No product images to display');
+                        return;
+                    }
+                    
+                    // 清空容器
+                    mobileSlides.innerHTML = '';
+                    mobileIndicators.innerHTML = '';
+                    allImagesContainer.innerHTML = '';
+
+                    // 移动端轮播图
+                    this.currentProductImages.forEach((img, index) => {
+                        const slide = document.createElement('div');
+                        slide.className = 'mobile-slide';
+
+                        const slideImg = document.createElement('img');
+                        slideImg.src = this.getImageUrl(img.url);
+                        slideImg.alt = `商品图片 ${index + 1}`;
+                        slideImg.loading = 'lazy';
+                        slideImg.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            this.openModal(index);
+                        });
+
+                        slide.appendChild(slideImg);
+                        mobileSlides.appendChild(slide);
+
+                        // 创建指示器
+                        const indicator = document.createElement('div');
+                        indicator.className = 'mobile-indicator';
+                        if (index === 0) indicator.classList.add('active');
+                        indicator.addEventListener('click', () => {
+                            this.goToSlide(index);
+                        });
+                        mobileIndicators.appendChild(indicator);
+                    });
+
+                    // 所有图片展示
+                    this.currentProductImages.forEach((img, index) => {
+                        const imgElement = document.createElement('img');
+                        imgElement.src = this.getImageUrl(img.url);
+                        imgElement.alt = `商品图片 ${index + 1}`;
+                        imgElement.loading = 'lazy';
+                        imgElement.style.cursor = 'pointer';
+                        imgElement.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            this.openModal(index);
+                        });
+                        allImagesContainer.appendChild(imgElement);
+                    });
+
+                    // 初始化移动端滑动
+                    this.initMobileSlider();
+                },
+
+                // 移动端滑动逻辑
+                initMobileSlider() {
+                    if (window.innerWidth > 768) return;
+
+                    const mobileSlider = document.getElementById('mobileSlider');
+                    if (!mobileSlider) return;
+
+                    let currentSlide = 0;
+                    let isDragging = false;
+                    let startPos = 0;
+                    let currentTranslate = 0;
+                    let prevTranslate = 0;
+
+                    function touchStart(event) {
+                        event.preventDefault();
+                        if (event.type === 'touchstart') {
+                            startPos = event.touches[0].clientX;
+                        } else {
+                            startPos = event.clientX;
+                        }
+                        isDragging = true;
+                        currentTranslate = currentSlide * -window.innerWidth;
+                        prevTranslate = currentTranslate;
+                        document.getElementById('mobileSlides').style.transition = 'none';
+                    }
+
+                    function touchMove(event) {
+                        if (!isDragging) return;
+                        event.preventDefault();
+
+                        let currentPosition = 0;
+                        if (event.type === 'touchmove') {
+                            currentPosition = event.touches[0].clientX;
+                        } else {
+                            currentPosition = event.clientX;
+                        }
+
+                        currentTranslate = prevTranslate + currentPosition - startPos;
+                        document.getElementById('mobileSlides').style.transform = `translateX(${currentTranslate}px)`;
+                    }
+
+                    function touchEnd() {
+                        isDragging = false;
+                        document.getElementById('mobileSlides').style.transition = 'transform 0.2s ease-out';
+
+                        const movedBy = currentTranslate - prevTranslate;
+                        const slideCount = document.querySelectorAll('.mobile-slide').length;
+
+                        if (movedBy < -50 && currentSlide < slideCount - 1) {
+                            currentSlide += 1;
+                        } else if (movedBy > 50 && currentSlide > 0) {
+                            currentSlide -= 1;
+                        } else if (Math.abs(movedBy) < 50) {
+                            currentSlide = Math.round(currentTranslate / -window.innerWidth);
+                            currentSlide = Math.max(0, Math.min(slideCount - 1, currentSlide));
+                        }
+
+                        setPositionByIndex(currentSlide);
+                    }
+
+                    function setPositionByIndex(slideIndex) {
+                        currentSlide = slideIndex;
+                        currentTranslate = currentSlide * -window.innerWidth;
+                        prevTranslate = currentTranslate;
+                        document.getElementById('mobileSlides').style.transform = `translateX(${currentTranslate}px)`;
+                        updateIndicators(currentSlide);
+                    }
+
+                    function goToSlide(index) {
+                        setPositionByIndex(index);
+                    }
+
+                    function updateIndicators(index) {
+                        const indicators = document.querySelectorAll('.mobile-indicator');
+                        indicators.forEach((indicator, i) => {
+                            if (i === index) {
+                                indicator.classList.add('active');
+                            } else {
+                                indicator.classList.remove('active');
+                            }
+                        });
+                    }
+
+                    // 绑定事件
+                    mobileSlider.addEventListener('touchstart', touchStart, { passive: false });
+                    mobileSlider.addEventListener('touchmove', touchMove, { passive: false });
+                    mobileSlider.addEventListener('touchend', touchEnd);
+                    mobileSlider.addEventListener('mousedown', touchStart);
+                    mobileSlider.addEventListener('mousemove', touchMove);
+                    mobileSlider.addEventListener('mouseup', touchEnd);
+                    mobileSlider.addEventListener('mouseleave', touchEnd);
+
+                    // 暴露方法到Vue
+                    this.goToSlide = goToSlide;
+                    this.setPositionByIndex = setPositionByIndex;
+                    this.updateIndicators = updateIndicators;
                 }
-              } else {
-                console.warn('未找到匹配的分类');
-                // 可添加默认数据或错误处理
-              }
-            })
-            .catch(err => {
-              console.error('加载 data.json 失败:', err);
-            });
-        },
-        switchMainImg(index) {
-          this.currentMainIndex = index;
-        },
-        toggleBuyLinks() {
-          this.showBuyLinks = !this.showBuyLinks;
-        },
-        scrollThumbs(direction) {
-          const wrapper = this.$refs.thumbsWrapper;
-          const itemHeight = 70; // 60px img + 10px gap
-          wrapper.scrollBy({ top: direction * itemHeight, behavior: 'smooth' });
-        },
-        purchaseLinks(itemId) {
-            console.log( 'itemId',itemId )
-          const parsedUrl = new URL(`https://weidian.com/item.html?itemID=${itemId}`);
-          const itemID = parsedUrl.searchParams.get('itemID');
-          if (!itemID) throw new Error('无法从 URL 提取 itemID');
-          const encodedUrl = encodeURIComponent(parsedUrl.toString());
-          return [
-            {name: 'cnfans', icon: "./icon/cnfans.ico", link: `https://cnfans.com/product?id=${itemID}&platform=WEIDIAN`},
-            {name: 'hoobuy', icon: "./icon/hoo32.ico", link: `https://hoobuy.com/product/2/${itemID}`},
-            {name: 'oopbuy', icon: "./icon/oop.png", link: `https://oopbuy.com/product/weidian/${itemID}`},
-            {name: 'mulebuy', icon: "./icon/mulebuy.ico", link: `https://mulebuy.com/zh/product/?shop_type=weidian&id=${itemID}`},
-            {name: 'allchinabuy', icon: "./icon/chinabuy.ico", link: `https://www.allchinabuy.com/en/page/buy/?nTag=Home-search&from=search-input&_search=url&position=&url=${encodedUrl}`},
-            {name: 'kakobuy', icon: "./icon/kakobuy.png", link: `https://www.kakobuy.com/item/details?url=${encodedUrl}`}
-          ];
-        },
-        /* =====================================================
-             模块：大图查看模态框（图片查看器） - Vue 方法
-             描述：控制模态框的打开、关闭和图片切换逻辑
-        ===================================================== */
-        // 新增：打开大图模态框
-        openModal(index) {
-          console.log('点击图片，打开模态框，index:', index); // 调试：确认方法调用
-          this.modalImageIndex = index;
-          this.showModal = true;
-          document.body.style.overflow = 'hidden'; // 防止页面滚动
-        },
-        // 新增：关闭大图模态框
-        closeModal() {
-          console.log('关闭模态框'); // 调试：确认关闭
-          this.showModal = false;
-          document.body.style.overflow = 'auto'; // 恢复页面滚动
-        },
-        // 新增：上一张大图
-        prevModal() {
-          if (this.modalImageIndex > 0) {
-            this.modalImageIndex--;
-          } else {
-            this.modalImageIndex = this.currentProductImages.length - 1;
-          }
-        },
-        // 新增：下一张大图
-        nextModal() {
-          if (this.modalImageIndex < this.currentProductImages.length - 1) {
-            this.modalImageIndex++;
-          } else {
-            this.modalImageIndex = 0;
-          }
-        },
-        initMobileAndAllImages() {
-          if (!this.currentProductImages.length) return;
-          const mobileSlides = document.getElementById('mobileSlides');
-          const mobileIndicators = document.getElementById('mobileIndicators');
-          const mobileSlider = document.getElementById('mobileSlider');
-          const allImagesContainer = document.getElementById('allImagesContainer');
-
-          // 清空容器
-          mobileSlides.innerHTML = '';
-          mobileIndicators.innerHTML = '';
-          allImagesContainer.innerHTML = '';
-
-          // 移动端轮播图
-          this.currentProductImages.forEach((url, index) => {
-            const slide = document.createElement('div');
-            slide.className = 'mobile-slide';
-
-            const slideImg = document.createElement('img');
-            slideImg.src = url;
-            slideImg.alt = `商品图片 ${index + 1}`;
-            slideImg.loading = 'lazy';
-            /* =====================================================
-                 模块：大图查看模态框（图片查看器） - 移动端轮播图点击事件
-                 描述：点击移动端slide图片打开模态框
-            ===================================================== */
-            slideImg.addEventListener('click', (e) => {
-              e.stopPropagation(); // 防止事件冒泡
-              console.log('移动端图片点击，index:', index); // 调试
-              this.openModal(index);
-            });
-
-            slide.appendChild(slideImg);
-            mobileSlides.appendChild(slide);
-
-            // 创建指示器
-            const indicator = document.createElement('div');
-            indicator.className = 'mobile-indicator';
-            if (index === 0) indicator.classList.add('active');
-
-            indicator.addEventListener('click', () => {
-              this.goToSlide(index);
-            });
-
-            mobileIndicators.appendChild(indicator);
-          });
-
-          // all-images
-          this.currentProductImages.forEach((url, index) => {
-            const img = document.createElement('img');
-            img.src = url;
-            img.alt = `商品图片 ${index + 1}`;
-            img.loading = 'lazy';
-            img.style.cursor = 'pointer'; // 确保指针样式
-
-            /* =====================================================
-                 模块：大图查看模态框（图片查看器） - 更多图片点击事件
-                 描述：点击更多图片模块的图片打开模态框
-            ===================================================== */
-            img.addEventListener('click', (e) => {
-              e.stopPropagation(); // 防止事件冒泡
-              console.log('更多图片点击，index:', index); // 调试
-              this.openModal(index); // 统一使用模态框查看大图（移除原PC条件）
-            });
-
-            allImagesContainer.appendChild(img);
-          });
-
-          // 初始化移动端滑动
-          this.initMobileSlider();
-        },
-        /* =====================================================
-           模块：移动端Slider - JS 优化（修改处：降低阈值、添加preventDefault、优化move逻辑）
-           描述：提升滑动灵敏度，阈值从100px降到50px；实时transform；防止默认行为
-        ===================================================== */
-        initMobileSlider() {
-          if (window.innerWidth > 768) return;
-
-          const mobileSlider = document.getElementById('mobileSlider');
-          let currentSlide = 0;
-          let isDragging = false;
-          let startPos = 0;
-          let currentTranslate = 0;
-          let prevTranslate = 0;
-
-          function touchStart(event) {
-            /* 修改：添加preventDefault以防浏览器默认行为干扰 */
-            event.preventDefault();
-            if (event.type === 'touchstart') {
-              startPos = event.touches[0].clientX;
-            } else {
-              startPos = event.clientX;
+            },
+            mounted() {
+                this.loadProductDetail();
             }
-            isDragging = true;
-            /* 修改：重置currentTranslate为当前snap位置，避免拖拽偏移 */
-            currentTranslate = currentSlide * -window.innerWidth;
-            prevTranslate = currentTranslate;
-            mobileSlides.style.transition = 'none'; /* 拖拽时禁用transition */
-          }
-
-          function touchMove(event) {
-            if (!isDragging) return;
-            event.preventDefault(); /* 修改：防止页面滚动干扰 */
-
-            let currentPosition = 0;
-            if (event.type === 'touchmove') {
-              currentPosition = event.touches[0].clientX;
-            } else {
-              currentPosition = event.clientX;
-            }
-
-            currentTranslate = prevTranslate + currentPosition - startPos;
-            /* 修改：实时更新transform，提升跟随感 */
-            document.getElementById('mobileSlides').style.transform = `translateX(${currentTranslate}px)`;
-          }
-
-          function touchEnd() {
-            isDragging = false;
-            /* 修改：恢复transition以启用snap动画 */
-            mobileSlides.style.transition = 'transform 0.2s ease-out';
-
-            const movedBy = currentTranslate - prevTranslate;
-            const slideCount = document.querySelectorAll('.mobile-slide').length;
-
-            /* 修改：降低阈值从100px到50px，提升灵敏度；添加边界检查 */
-            if (movedBy < -50 && currentSlide < slideCount - 1) {
-              currentSlide += 1;
-            } else if (movedBy > 50 && currentSlide > 0) {
-              currentSlide -= 1;
-            }
-            /* 修改：如果移动小，snap回原位 */
-            else if (Math.abs(movedBy) < 50) {
-              currentSlide = Math.round(currentTranslate / -window.innerWidth);
-              currentSlide = Math.max(0, Math.min(slideCount - 1, currentSlide));
-            }
-
-            setPositionByIndex(currentSlide);
-          }
-
-          function setPositionByIndex(slideIndex) {
-            currentSlide = slideIndex;
-            currentTranslate = currentSlide * -window.innerWidth;
-            prevTranslate = currentTranslate;
-            document.getElementById('mobileSlides').style.transform = `translateX(${currentTranslate}px)`;
-            updateIndicators(currentSlide);
-          }
-
-          function goToSlide(index) {
-            setPositionByIndex(index);
-          }
-
-          function updateIndicators(index) {
-            const indicators = document.querySelectorAll('.mobile-indicator');
-            indicators.forEach((indicator, i) => {
-              if (i === index) {
-                indicator.classList.add('active');
-              } else {
-                indicator.classList.remove('active');
-              }
-            });
-          }
-
-          // 绑定事件
-          mobileSlider.addEventListener('touchstart', touchStart, { passive: false }); /* 修改：passive:false允许preventDefault */
-          mobileSlider.addEventListener('touchmove', touchMove, { passive: false });
-          mobileSlider.addEventListener('touchend', touchEnd);
-          mobileSlider.addEventListener('mousedown', touchStart);
-          mobileSlider.addEventListener('mousemove', touchMove);
-          mobileSlider.addEventListener('mouseup', touchEnd);
-          mobileSlider.addEventListener('mouseleave', touchEnd);
-
-          // 暴露方法到Vue
-          this.goToSlide = goToSlide;
-          this.setPositionByIndex = setPositionByIndex;
-          this.updateIndicators = updateIndicators;
-        }
-      },
-      mounted() {
-        const params = this.getParamsFromUrl();
-        if (params.categoryId && params.pid) {
-          this.loadAndMatchProduct(params.categoryId, params.pid);
-        }
-      }
-    });
-  </script>
+        });
+    </script>
+    
 </body>
 </html>

@@ -1,13 +1,25 @@
-// NavComponent.js - 导航组件，包含内联样式（PC端样式保持原样：简单flex居中布局）
+// NavComponent.js - 导航组件，动态加载分类并使用接口返回的图标
 Vue.component('nav-component', {
   template: `
     <div class="nav-wrapper">
       <!-- 桌面端导航（PC端） -->
       <div class="nav-container-desktop">
-        <a :class="['nav-link', isActive('./index.html') ? 'nav-link-active' : '']" href="./index.html">Home</a>
-        <a :class="['nav-link', isActive('./all.html?categoryId=1') ? 'nav-link-active' : '']" href="./all.html?categoryId=1">Coats</a>
-        <a :class="['nav-link', isActive('./all.html?categoryId=2') ? 'nav-link-active' : '']" href="./all.html?categoryId=2">Hoodies</a>
-        <a :class="['nav-link', isActive('./all.html?categoryId=3') ? 'nav-link-active' : '']" href="./all.html?categoryId=3">T-shirts</a>
+        <!-- 首页 -->
+        <a :class="['nav-link', isActive('./index.html') ? 'nav-link-active' : '']" href="./index.html">
+          <i class="fas fa-home nav-icon"></i>
+          Home
+        </a>
+        
+        <!-- 分类链接 -->
+        <a 
+          v-for="category in categories" 
+          :key="category.id"
+          :class="['nav-link', isActive('./all.html?categoryId=' + category.id) ? 'nav-link-active' : '']" 
+          :href="'./all.html?categoryId=' + category.id + '&categoryName=' + encodeURIComponent(category.name)"
+        >
+          <span class="nav-icon-unicode">{{ category.icon_unicode }}</span>
+          {{ category.name }}
+        </a>
       </div>
 
       <!-- 移动端汉堡菜单 -->
@@ -16,42 +28,107 @@ Vue.component('nav-component', {
           <span></span><span></span><span></span>
         </button>
         <div class="mobile-menu" :class="{ active: isMenuOpen }">
-          <a href="./index.html" class="mobile-link" :class="{ active: isActive('./index.html') }">Home</a>
-          <a href="./all.html?categoryId=1" class="mobile-link" :class="{ active: isActive('./all.html?categoryId=1') }">Coats</a>
-          <a href="./all.html?categoryId=2" class="mobile-link" :class="{ active: isActive('./all.html?categoryId=2') }">Hoodies</a>
-          <a href="./all.html?categoryId=3" class="mobile-link" :class="{ active: isActive('./all.html?categoryId=3') }">T-shirts</a>
+          <!-- 首页 -->
+          <a href="./index.html" class="mobile-link" :class="{ active: isActive('./index.html') }">
+            <i class="fas fa-home nav-icon"></i>
+            Home
+          </a>
+          
+          <!-- 分类链接 -->
+          <a 
+            v-for="category in categories" 
+            :key="category.id"
+            :href="'./all.html?categoryId=' + category.id + '&categoryName=' + encodeURIComponent(category.name)"
+            class="mobile-link" 
+            :class="{ active: isActive('./all.html?categoryId=' + category.id) }"
+          >
+            <span class="nav-icon-unicode">{{ category.icon_unicode }}</span>
+            {{ category.name }}
+          </a>
         </div>
       </div>
     </div>
   `,
   data() {
     return {
-      isMenuOpen: false
+      isMenuOpen: false,
+      categories: [], // 存储分类数据
+      loading: false,
+      error: null
     };
   },
   methods: {
+    // 加载分类数据
+    async loadCategories() {
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        const result = await categoryApi.getCategoryList();
+        console.log('导航组件加载分类API响应:', result);
+        
+        if (result.code === 200) {
+          this.categories = result.data || [];
+          console.log('导航组件分类加载成功，数量:', this.categories.length);
+          console.log('分类数据详情:', this.categories);
+        } else {
+          this.error = result.msg || '获取分类列表失败';
+          console.error('导航组件加载分类失败:', this.error);
+        }
+      } catch (error) {
+        console.error('导航组件加载分类数据失败:', error);
+        this.error = '网络请求失败，请检查网络连接';
+        // API调用失败时，categories保持为空数组，只显示首页
+      } finally {
+        this.loading = false;
+      }
+    },
+
     toggleMenu() {
       this.isMenuOpen = !this.isMenuOpen;
-      // 更新汉堡按钮的active类（用于动画）
       const hamburger = this.$el.querySelector('.hamburger');
       if (hamburger) {
         hamburger.classList.toggle('active');
       }
     },
+
     isActive(path) {
-      const currentPath = window.location.pathname.split('/').pop();
+      const currentPath = window.location.pathname;
       const currentSearch = window.location.search;
-      const targetPath = path.split('/').pop().split('?')[0];
-      console.log("path" , path)
-      // 对于Home，特殊处理（无查询参数）
-      // 对于Home，特殊处理（无查询参数），支持根路径 '/' 或 'index.html'
+      
+      // 提取目标路径的基本文件名（不含查询参数）
+      const targetFileName = path.split('/').pop().split('?')[0];
+      
+      // 提取当前路径的基本文件名
+      const currentFileName = currentPath.split('/').pop();
+      
+      // 特殊处理首页：当在/category路径时，不应该激活首页
       if (path === './index.html') {
-        return (currentPath === 'index.html' || currentPath === '' || currentPath === '/') && !currentSearch;
+        // 只有在根路径或index.html时才激活首页
+        return currentPath === '/' || 
+               currentPath === '/index.html' || 
+               currentFileName === 'index.html';
       }
-      // 检查路径匹配和查询参数包含
-      const searchPart = currentSearch.replace('?', '');
-      return currentPath === targetPath && path.includes(searchPart);
+      
+      // 处理all.html页面：检查categoryId参数
+      if (path.startsWith('./all.html')) {
+        const targetParams = new URLSearchParams(path.split('?')[1] || '');
+        const currentParams = new URLSearchParams(currentSearch);
+        
+        // 如果当前路径是/category，不应该激活all.html链接
+        if (currentFileName === 'category') {
+          return false;
+        }
+        
+        // 检查路径和参数匹配
+        return currentFileName === 'all.html' && 
+               currentParams.get('categoryId') === targetParams.get('categoryId');
+      }
+      
+      // 默认情况：简单文件名匹配
+      return currentFileName === targetFileName;
     },
+
     closeMenu() {
       this.isMenuOpen = false;
       const hamburger = this.$el.querySelector('.hamburger');
@@ -71,46 +148,65 @@ Vue.component('nav-component', {
         .nav-wrapper {
           width: 100%;
           max-width: 1280px;
-          
           position: relative;
         }
 
-        /* PC端导航样式（保持不变：简单flex居中布局，无额外hover效果，除非原CSS指定） */
+        /* PC端导航样式 */
         .nav-container-desktop {
           display: flex;
           justify-content: center;
           align-items: center;
-          gap: 40px; /* 原样：链接间距 */
-          padding: 10px 0; /* 原样：上下内边距 */
+          gap: 40px;
+          padding: 10px 0;
+          flex-wrap: wrap; /* 允许换行 */
         }
 
         .nav-link {
+          display: flex;
+          align-items: center;
+          gap: 8px;
           text-decoration: none;
-          color: #2d3436; /* 原样：默认颜色 */
+          color: #2d3436;
           font-weight: 500;
           font-size: 16px;
-          padding: 8px 16px; /* 原样：内边距 */
-          border-radius: 6px; /* 原样：圆角 */
-          transition: all 0.3s ease; /* 原样：过渡 */
+          padding: 8px 16px;
+          border-radius: 6px;
+          transition: all 0.3s ease;
           position: relative;
+          white-space: nowrap; /* 防止文字换行 */
         }
 
         .nav-link-active {
-          color: #ff7f00; /* 原样：激活颜色 */
-          background: rgba(255, 127, 0, 0.1); /* 原样：激活背景 */
+          color: #ff7f00;
+          background: rgba(255, 127, 0, 0.1);
         }
 
         .nav-link:hover {
-          color: #ff7f00; /* 原样：悬停颜色 */
-          background: rgba(255, 127, 0, 0.1); /* 原样：悬停背景 */
+          color: #ff7f00;
+          background: rgba(255, 127, 0, 0.1);
         }
 
-        /* 移动端汉堡菜单容器（使用提供的旧样式） */
+        /* 导航图标样式 */
+        .nav-icon {
+          font-size: 14px;
+          width: 16px;
+          text-align: center;
+        }
+
+        /* Unicode图标样式 */
+        .nav-icon-unicode {
+          font-size: 16px;
+          width: 20px;
+          text-align: center;
+          display: inline-block;
+        }
+
+        /* 移动端汉堡菜单容器 */
         .nav-mobile {
           display: none;
           position: relative;
-          padding: 4px 0; /* 减少padding以紧凑 */
-          text-align: right; /* 确保汉堡菜单靠右对齐 */
+          padding: 4px 0;
+          text-align: right;
         }
 
         .hamburger {
@@ -124,7 +220,7 @@ Vue.component('nav-component', {
           cursor: pointer;
           padding: 0;
           z-index: 1001;
-          margin-left: auto; /* 确保汉堡图标靠右对齐 */
+          margin-left: auto;
         }
 
         .hamburger span {
@@ -146,16 +242,18 @@ Vue.component('nav-component', {
           transform: rotate(-45deg) translate(6px, -6px);
         }
 
-        /* 弹出菜单：紧贴汉堡图标下方 */
+        /* 弹出菜单 */
         .mobile-menu {
           position: absolute;
-          top: 44px; /* 减少间隙：40px 按钮 + 4px 间距 */
-          right: 0; /* 关键：right: 0，紧贴父容器右边缘 */
+          top: 44px;
+          right: 0;
           background: #fff;
-          min-width: 180px;
+          min-width: 200px;
+          max-height: 400px;
+          overflow-y: auto;
           border-radius: 12px;
           box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-          padding: 8px 0; /* 减少padding以紧凑 */
+          padding: 8px 0;
           opacity: 0;
           visibility: hidden;
           transform: translateY(-10px);
@@ -170,13 +268,16 @@ Vue.component('nav-component', {
         }
 
         .mobile-link {
-          display: block;
-          padding: 10px 20px; /* 减少padding以紧凑 */
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 12px 20px;
           color: #2d3436;
           text-decoration: none;
-          font-size: 14px; /* 减少字体大小 */
+          font-size: 14px;
           font-weight: 500;
           transition: background 0.2s;
+          white-space: nowrap;
         }
 
         .mobile-link:hover {
@@ -188,8 +289,8 @@ Vue.component('nav-component', {
           font-weight: 600;
         }
 
-        /* 响应式：切换显示（PC端默认显示，移动端隐藏PC） */
-        @media (max-width: 480px) {
+        /* 响应式设计 */
+        @media (max-width: 768px) {
           .nav-container-desktop { 
             display: none !important; 
           }
@@ -197,9 +298,31 @@ Vue.component('nav-component', {
             display: block; 
           }
         }
+
+        /* 小屏幕PC端适配 */
+        @media (max-width: 1024px) and (min-width: 769px) {
+          .nav-container-desktop {
+            gap: 20px;
+          }
+          .nav-link {
+            font-size: 14px;
+            padding: 6px 12px;
+          }
+          .nav-icon {
+            font-size: 12px;
+            width: 14px;
+          }
+          .nav-icon-unicode {
+            font-size: 14px;
+            width: 18px;
+          }
+        }
       `;
       document.head.appendChild(style);
     }
+
+    // 加载分类数据
+    this.loadCategories();
 
     // 监听点击关闭菜单（全局点击外部关闭）
     document.addEventListener('click', (e) => {

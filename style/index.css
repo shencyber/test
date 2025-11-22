@@ -1,195 +1,87 @@
-<style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-  body {
-    font-family: 'Inter', sans-serif;
-    background-color: #f8f9fa;
-    min-height: 100vh;
-    margin: 0;
-    padding: 10px 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-  }
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  margin: 0;
+  padding: 10px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
 
-  #app {
-    width: 100%;
-    max-width: 1280px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+#app {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+p {
+  text-align: center;
+  color: #555;
+  font-size: 14px;
+  margin: 8px 0;
+}
+
+.info-wrapper{
+  padding-top:20px;
+  padding-bottom:30px;
+}
+.info-wrapper > .info{ font-size: 16px;  }
+
+/* 购买链接 */
+.buy-links {
+  display: none;
+}
 
 
-  p {
-    text-align: center;
-    color: #555;
-    font-size: 14px;
-    margin: 8px 0;
-  }
 
-  .info-wrapper{
-    margin:20px 0;
-  }
-  .info-wrapper > .info{ font-size: 20px;  }
+.category-title {
+  font-size: 1.2em;
+  color: #2d3436;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
 
-  .category-section {
-    width: 100%;
-    max-width: 1280px;
-    margin: 0 auto 40px;
-    text-align: center;
-  }
+/* View More 按钮 */
+    .fancy-button {
+      /*margin-top: 20px;*/
+      margin-bottom: 20px;
+      background: transparent;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 16px;
+      font-weight: 500;
+      color: #333;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
 
-  .category-title {
-    font-size: 1.2em;
-    color: #2d3436;
-    margin-bottom: 20px;
-    font-weight: 500;
-  }
+    .fancy-button .arrow {
+      font-size: 18px;
+      transition: transform 0.3s ease;
+    }
 
-  .product-container {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-  }
+    .fancy-button:hover {
+      background: rgba(0,0,0,0.05);
+      border-color: #555;
+      color: #555;
+    }
 
-  .product-inner {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    gap: 16px;
-    width: 100%;
-    max-width: 1280px;
-  }
-
-  .product-card {
-    flex: 0 0 calc(16.666% - 14px);
-    max-width: calc(16.666% - 14px);
-    min-width: 160px;
-    background: #fff;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-    transition: transform 0.4s cubic-bezier(0.25,0.8,0.25,1);
-  }
-
-  .product-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.08);
-  }
-
-  .product-image {
-    width: 100%;
-    aspect-ratio: 1/1;
-    object-fit: cover;
-    border-bottom: 1px solid #f1f1f1;
-  }
-
-  .product-price {
-    font-size: 1.2em;
-    color: #2d3436;
-    text-align: center;
-    padding: 15px 10px 5px;
-    font-weight: 500;
-  }
-
-  .buy-links {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    padding: 8px 10px 15px;
-    gap: 4px;
-  }
-
-  .buy-link-item {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    width: calc(50% - 2px);
-    margin-bottom: 4px;
-  }
-
-  .buy-link-icon {
-    width: 16px;
-    height: 16px;
-  }
-
-  .buy-link {
-    color: #636e72;
-    font-size: 0.78em;
-    text-decoration: none;
-    position: relative;
-    padding: 2px 4px;
-    transition: color 0.3s ease;
-  }
-
-  .buy-link::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 0;
-    height: 0.5px;
-    background: #636e72;
-    transition: width 0.3s ease;
-  }
-
-  .buy-link:hover { color: #2d3436; }
-  .buy-link:hover::after { width: 100%; }
-
-  .fancy-button {
-    margin-top: 20px;
-    background: transparent;
-    border: 1px solid #333;
-    border-radius: 8px;
-    padding: 6px 12px;
-    font-size: 16px;
-    font-weight: 500;
-    color: #333;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s ease;
-    cursor: pointer;
-  }
-
-  .fancy-button .arrow {
-    font-size: 18px;
-    transition: transform 0.3s ease;
-  }
-
-  .fancy-button:hover {
-    background: rgba(0,0,0,0.05);
-    border-color: #555;
-    color: #555;
-  }
-
-  .fancy-button:hover .arrow {
-    transform: translateX(5px);
-  }
-
-  
-
-  /* 响应式 */
-  @media (max-width: 1200px) {
-    .product-card { flex: 0 0 calc(25% - 16px); max-width: calc(25% - 16px); }
-  }
-  @media (max-width: 768px) {
-    .product-card { flex: 0 0 calc(33.333% - 16px); max-width: calc(33.333% - 16px); }
-  }
-  @media (max-width: 480px) {
-    .product-container, .product-inner { gap: 12px; }
-    .product-card { flex: 0 0 calc(50% - 12px); max-width: calc(50% - 12px); }
-    .category-title { font-size: 1.5em; }
-    .buy-link { font-size: 0.7em; }
-    .fancy-button { padding: 4px 8px; font-size: 14px; border-radius: 6px; gap: 6px; }
-    .fancy-button .arrow { font-size: 16px; }
-  }
-</style>
+    .fancy-button:hover .arrow {
+      transform: translateX(5px);
+    }
