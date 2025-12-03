@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A curated selection down jackets, jackets, outerwear, and hoodies. Lightweight, warm, windproof, and water-resistant designs for commuting, outdoor activities, and daily wear. Worldwide shipping available.">
+
     <title>Newhappybuy</title>
     <link rel="stylesheet" href="./style/detail.css">
     <!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap"> -->
-    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         /* 大图查看模态框样式 */
@@ -229,7 +231,7 @@
                 <img 
                     :src="getImageUrl(currentProductImages[currentMainIndex]?.url)" 
                     class="main-img" 
-                    alt="商品大图" 
+                    :alt="currentProduct.title" 
                     @click="openModal(currentMainIndex)"
                     @error="handleImageError"
                 >
@@ -250,7 +252,7 @@
                 </div>
                 
                 <div class="product-price">${{ currentProduct.price_usa }}</div>
-                <button class="buy-btn" @click="toggleBuyLinks">{{ showBuyLinks ? 'Hide Links' : 'Buy Now' }}</button>
+                <button id="buy-btn" class="buy-btn" @click="toggleBuyLinks">{{ showBuyLinks ? 'Hide Links' : 'Buy Now' }}</button>
                 
                 <!-- 购买链接区域 -->
                 <div class="buy-links-container" :style="{ display: showBuyLinks ? 'block' : 'none' }">
@@ -280,7 +282,7 @@
                 <span class="close" @click="closeModal">&times;</span>
                 <img 
                     :src="getImageUrl(currentProductImages[modalImageIndex]?.url)" 
-                    :alt="`商品大图 ${modalImageIndex + 1}`"
+                    :alt="currentProduct.title"
                     @error="handleImageError"
                 >
                 <button v-if="currentProductImages.length > 1" class="prev" @click="prevModal">&lt;</button>
@@ -339,8 +341,6 @@
                             this.currentProductImages = result.data.images || [];
                             this.currentMainIndex = 0;
                             
-                            console.log('商品数据:', this.currentProduct);
-                            console.log('图片数据:', this.currentProductImages);
                             
                             // 使用 $nextTick 确保DOM已经更新
                             this.$nextTick(() => {
@@ -353,7 +353,7 @@
                             this.error = result.msg || 'Failed to load product details';
                         }
                     } catch (err) {
-                        console.error('加载商品详情失败:', err);
+                        console.error('load error:', err);
                         this.error = 'Network error, please try again later';
                     } finally {
                         this.loading = false;
@@ -473,7 +473,7 @@
 
                         const slideImg = document.createElement('img');
                         slideImg.src = this.getImageUrl(img.url);
-                        slideImg.alt = `商品图片 ${index + 1}`;
+                        slideImg.alt = `image  ${index + 1}`;
                         slideImg.loading = 'lazy';
                         slideImg.addEventListener('click', (e) => {
                             e.stopPropagation();
@@ -497,7 +497,7 @@
                     this.currentProductImages.forEach((img, index) => {
                         const imgElement = document.createElement('img');
                         imgElement.src = this.getImageUrl(img.url);
-                        imgElement.alt = `商品图片 ${index + 1}`;
+                        imgElement.alt = `image ${index + 1}`;
                         imgElement.loading = 'lazy';
                         imgElement.style.cursor = 'pointer';
                         imgElement.addEventListener('click', (e) => {
@@ -614,6 +614,14 @@
             }
         });
     </script>
-    
+    <script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
+
+
+<script src="track.js"></script>
 </body>
 </html>

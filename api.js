@@ -1,9 +1,8 @@
 // api.js - 前端API接口封装（ES6模块）- 仅分类相关
 
 // 配置基础URL
-const BASE_URL = 'https://api.newhappybuy.store/index.php/front/'; // 根据你的实际后端地址修改
-// const BASE_URL = 'http://156.238.226.189/index.php/front/'; // 根据你的实际后端地址修改
-// const BASE_URL = 'http://47.94.236.74:8000/index.php/front/'; // 根据你的实际后端地址修改
+// const BASE_URL = 'https://api.newhappybuy.store/index.php/front/'; // 根据你的实际后端地址修改
+const BASE_URL = 'http://47.94.236.74:8000/index.php/front/'; // 根据你的实际后端地址修改
 
 // 统一的请求函数
 async function request(url, data = {}) {
@@ -72,6 +71,18 @@ const productApi = {
     }
 };
 
+
+
+
+// 行为相关API
+const trackApi = {
+    // 获取前台分类列表
+    sendTrack: async (data ) => {
+        return await request('track' , data);
+    }
+};
+
 // 设置为全局变量
 window.categoryApi = categoryApi;
 window.productApi = productApi;
+window.trackApi = trackApi;
