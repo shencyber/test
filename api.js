@@ -1,8 +1,7 @@
 // api.js - 前端API接口封装（ES6模块）- 仅分类相关
 
 // 配置基础URL
-// const BASE_URL = 'https://api.newhappybuy.store/index.php/front/'; // 根据你的实际后端地址修改
-const BASE_URL = 'http://47.94.236.74:8000/index.php/front/'; // 根据你的实际后端地址修改
+const BASE_URL = 'https://api.newhappybuy.store/index.php/front/'; // 根据你的实际后端地址修改
 
 // 统一的请求函数
 async function request(url, data = {}) {

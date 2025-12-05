@@ -63,10 +63,16 @@ function getPageReferrer() {
 
 
 let referrerData = getPageReferrer()
-console.log("referrerData",referrerData)
+// console.log("referrerData",Object.assign({} , referrerData , {event_type: 'view', weidian_id: getWeidianIdFromUrl()}))
 
 // 页面浏览跟踪
-sendTrack(  Object.assign({} , referrerData , {event_type: 'view', weidian_id: getWeidianIdFromUrl()})  );
+if(window.location.href=='https://newhappybuy.store/' )
+{
+  console.log( Object.assign({} , referrerData , {event_type: 'view'}) )
+  sendTrack(  Object.assign({} , referrerData , {event_type: 'view'})  );
+}
+else
+  sendTrack(  Object.assign({} , referrerData , {event_type: 'view', weidian_id: getWeidianIdFromUrl()})  );
 
 // 点击事件跟踪
 document.addEventListener('click', (e) => {
