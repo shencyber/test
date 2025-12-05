@@ -258,10 +258,6 @@
                 <div class="buy-links-container" :style="{ display: showBuyLinks ? 'block' : 'none' }">
                     <div class="buy-links-title">Select Purchase Platform:</div>
                     <div class="buy-links">
-                        <div  class="buy-link-item">
-                            <img src="./icon/weidian.png" class="buy-link-icon" />
-                            <a :href="https://weidian.com/item.html?itemID={currentProduct.weidian_id}" class="buy-link" target="_blank">weidian</a>
-                        </div>
                         <div v-for="(linkItem, index) in purchaseLinks(currentProduct.weidian_id)" :key="index" class="buy-link-item">
                             <img :src="linkItem.icon" class="buy-link-icon" />
                             <a :href="linkItem.link" class="buy-link" target="_blank">{{linkItem.name}}</a>
@@ -619,11 +615,11 @@
         });
     </script>
     <script>
-  // window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-  // window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
 </script>
-<!-- <script defer src="/_vercel/insights/script.js"></script> -->
-<!-- <script defer src="/_vercel/speed-insights/script.js"></script> -->
+<script defer src="/_vercel/insights/script.js"></script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
 
 
 <script src="track.js"></script>

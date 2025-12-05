@@ -4,7 +4,7 @@ Vue.component('social-component', {
       <a href="https://t.me/+zQFcv5JPY-wxZTE1" class="social-icon telegram-icon" target="_blank" title="Join Telegram">
         <i class="fab fa-telegram-plane"></i>
       </a>
-      <a href="https://wa.me/8617706270893" class="social-icon whatsapp-icon" target="_blank" title="Join WhatsApp">
+      <a href="https://wa.me/8615397868716" class="social-icon whatsapp-icon" target="_blank" title="Join WhatsApp">
         <i class="fab fa-whatsapp"></i>
       </a>
       <a href="https://www.tiktok.com/@qqww3968" class="social-icon tiktok-icon" target="_blank" title="Follow TikTok">
@@ -65,6 +65,7 @@ Vue.component('social-component', {
           transition: all 0.3s ease;
           border: none;
           cursor: pointer;
+          text-decoration: none; /* 取消下划线 */
         }
 
         .telegram-icon { background-color: #0088cc; }
